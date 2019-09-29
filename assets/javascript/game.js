@@ -9,29 +9,33 @@
 //
 
 var gameObj = {
-    playing: true,
+    fighting: false,
     characters: [
         {
             name: "Obi-Wan Kenobi",
             HP: 120,
+            BP: 8,
             AP: 8,
             CP: 25
         },
         {
             name: "Luke Skywalker",
             HP: 100,
+            BP: 8,
             AP: 8,
             CP: 25
         },
         {
             name: "Darth Sidious",
             HP: 150,
+            BP: 8,
             AP: 8,
             CP: 25
         },
         {
             name: "Darth Maul",
             HP: 180,
+            BP: 8,
             AP: 8,
             CP: 25
         },
@@ -61,9 +65,9 @@ var gameObj = {
             //If current character name is equal to the name of the characted clicked then assigns it as champion
             //Also moves champion to champion html section
             if (characterName === name) {
-                $("#champion").append(`<div class="col-sm-3" id="champion-character" data-name="${characterObj[0].name}"><p>${characterObj[0].name}</p><p>${characterObj[0].HP}</p></div>`);
+                $("#champion").append(`<div class="col-sm-3" id="champion-character" data-name="${characterObj[0].name}"><p>${characterObj[0].name}</p><p id="champion-hp">${characterObj[0].HP}</p></div>`);
                 $(this).remove();
-                gameObj.champion = characterObj[0];
+                gameObj.champion = Object.assign({}, characterObj[0]);
             }
             //Else just moves character to the opponents section and removes it from champion select section
             else {
@@ -76,25 +80,105 @@ var gameObj = {
 
     //Pretty much same as selectChampion except it is selecting the Enemy and adding it to enemy object
     selectEnemy: function (name) {
-        $(".opponent").each(function () {
-            var opponentName = $(this).data("name");
-            var characterObj = gameObj.characters.filter(function (character) {
-                return character.name === opponentName;
+
+        //If champion and enemy are not fighting, allows to choose enemy
+        if (this.fighting === false) {
+            $(".opponent").each(function () {
+                var opponentName = $(this).data("name");
+                var characterObj = gameObj.characters.filter(function (character) {
+                    return character.name === opponentName;
+                });
+
+                if (opponentName === name) {
+                    $("#enemy").html(`<div class="col-sm-3" id="enemy-character" data-name="${characterObj[0].name}"><p>${characterObj[0].name}</p><p id="enemy-hp">${characterObj[0].HP}</p></div>`);
+                    $(this).remove();
+                    gameObj.enemy = Object.assign({}, characterObj[0]);
+                }
             });
 
-            if (opponentName === name) {
-                $("#enemy").append(`<div class="col-sm-3" id="enemy-character" data-name="${characterObj[0].name}"><p>${characterObj[0].name}</p><p>${characterObj[0].HP}</p></div>`);
-                $(this).remove();
-                gameObj.enemy = characterObj[0];
+            //Sets fighting to true because both champion and enemy have been selected
+            this.fighting = true;
+            $("#attack").show();
+        }
+
+    },
+
+    //Function to simulate characters attacking and checks who dies
+    attackEnemy: function () {
+
+        //If there is no enemy selected prevents from attacking
+        if ($.isEmptyObject(this.enemy)) {
+            $("#combat-text").text("No enemy to attack");
+        } else {
+            //Simulates attack subtracting champion and enemy Health
+            this.enemy.HP -= this.champion.AP;
+            this.champion.HP -= this.enemy.CP;
+
+            //If champion and enemy are still alive, updates Health and displays combat damage done
+            if (this.champion.HP > 0 && this.enemy.HP > 0) {
+                $("#combat-text").html(`<p>You attacked the enemy with ${this.champion.AP} Attack Power</p><p>The enemy counter attacked you with ${this.enemy.CP} Attack Power</p>`);
+                $("#champion-hp").text(this.champion.HP);
+                $("#enemy-hp").text(this.enemy.HP);
+                this.champion.AP += this.champion.BP;
             }
-        });
+
+            //If champion and enemy die, updates Health and displays both died message, also shows play again button and hides attack button
+            else if (this.champion.HP <= 0 && this.enemy.HP <= 0) {
+                this.champion.HP = 0;
+                this.enemy.HP = 0;
+                $("#champion-hp").text(this.champion.HP);
+                $("#enemy-hp").text(this.enemy.HP);
+                $("#combat-text").html("<p>You both died!</p>");
+                $("#play-again").show();
+                $("#attack").hide();
+            }
+
+            //If champion dies, shows you lost message, updates health
+            else if (this.champion.HP <= 0) {
+                this.champion.HP = 0;
+                $("#champion-hp").text(this.champion.HP);
+                $("#enemy-hp").text(this.enemy.HP);
+                $("#combat-text").html("<p>You lost!</p>");
+                $("#play-again").show();
+                $("#attack").hide();
+            }
+
+            //If enemy dies, updates Health, shows win message and enables you to select another enemy 
+            else if (this.enemy.HP <= 0) {
+                this.enemy.HP = 0;
+                $("#champion-hp").text(this.champion.HP);
+                $("#enemy-hp").text(this.enemy.HP);
+                $("#combat-text").html("<p>You defeated your enemy! Select another enemy to continue!</p>");
+                this.fighting = false;
+                this.enemy = {};
+                $("#attack").hide();
+            }
+
+        }
+    },
+
+    //Game reset
+    resetGame: function () {
+        this.champion = {};
+        this.enemy = {};
+        $("#champion").html("");
+        $("#opponents").html("");
+        $("#enemy").html("");
+        $("#combat-text").html("");
+        this.fighting = false;
+        this.displayCharacters();
+        $("#play-again").hide();
+        $("#attack").hide();
     }
 }
 
-gameObj.displayCharacters();
+//Displays character when window loads
+$(document).ready(function () {
+    gameObj.displayCharacters();
+})
 
 //When clicking, gets character name via data-name attribute and calls selectChampion function passing the name
-$(".character").on("click", function () {
+$("#characters").on("click", ".character", function () {
     var name = $(this).data("name");
     gameObj.selectChampion(name);
 });
@@ -102,4 +186,14 @@ $(".character").on("click", function () {
 $("#opponents").on("click", ".opponent", function () {
     var name = $(this).data("name");
     gameObj.selectEnemy(name);
+});
+
+//When clicking attack button, calls attackEnemy function
+$("#attack").on("click", function () {
+    gameObj.attackEnemy();
+});
+
+//When clicking play again, resets game and displays characters
+$("#play-again").on("click", function () {
+    gameObj.resetGame();
 });
