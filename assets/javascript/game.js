@@ -16,28 +16,32 @@ var gameObj = {
             HP: 120,
             BP: 8,
             AP: 8,
-            CP: 25
+            CP: 25,
+            img: "assets/images/obi-wan.jpg"
         },
         {
             name: "Luke Skywalker",
             HP: 100,
             BP: 8,
             AP: 8,
-            CP: 25
+            CP: 25,
+            img: "assets/images/luke-skywalker.jpg"
         },
         {
             name: "Darth Sidious",
             HP: 150,
             BP: 8,
             AP: 8,
-            CP: 25
+            CP: 25,
+            img: "assets/images/darth-sidious.jpg"
         },
         {
             name: "Darth Maul",
             HP: 180,
             BP: 8,
             AP: 8,
-            CP: 25
+            CP: 25,
+            img: "assets/images/darth-maul.jpg"
         },
 
     ],
@@ -47,7 +51,7 @@ var gameObj = {
     //Loops over character array objects and creates html elements for each
     displayCharacters: function () {
         this.characters.forEach(function (character) {
-            $("#characters").append(`<div class="col-sm-3 character" data-name="${character.name}"><p>${character.name}</p><p>${character.HP}</p></div>`);
+            $("#characters").append(`<div class="col-sm-3 character my-2" data-name="${character.name}" style="background-image: linear-gradient(to right, rgba(0,0,0,.5), rgba(0,0,0,.5)), url('${character.img}')"><p>${character.name}</p><p>${character.HP}</p></div>`);
         })
     },
 
@@ -65,13 +69,13 @@ var gameObj = {
             //If current character name is equal to the name of the characted clicked then assigns it as champion
             //Also moves champion to champion html section
             if (characterName === name) {
-                $("#champion").append(`<div class="col-sm-3" id="champion-character" data-name="${characterObj[0].name}"><p>${characterObj[0].name}</p><p id="champion-hp">${characterObj[0].HP}</p></div>`);
+                $("#champion").append(`<div class="col-sm-3 my-2" id="champion-character" data-name="${characterObj[0].name}"  style="background-image: linear-gradient(to right, rgba(0,0,0,.5), rgba(0,0,0,.5)), url('${characterObj[0].img}')"><p>${characterObj[0].name}</p><p id="champion-hp">${characterObj[0].HP}</p></div>`);
                 $(this).remove();
                 gameObj.champion = Object.assign({}, characterObj[0]);
             }
             //Else just moves character to the opponents section and removes it from champion select section
             else {
-                $("#opponents").append(`<div class="col-sm-3 opponent" data-name="${characterObj[0].name}"><p>${characterObj[0].name}</p><p>${characterObj[0].HP}</p></div>`);
+                $("#opponents").append(`<div class="col-sm-3 opponent my-2" data-name="${characterObj[0].name}" style="background-image: linear-gradient(to right, rgba(0,0,0,.5), rgba(0,0,0,.5)), url('${characterObj[0].img}')"><p>${characterObj[0].name}</p><p>${characterObj[0].HP}</p></div>`);
                 $(this).remove();
             }
         });
@@ -90,7 +94,7 @@ var gameObj = {
                 });
 
                 if (opponentName === name) {
-                    $("#enemy").html(`<div class="col-sm-3" id="enemy-character" data-name="${characterObj[0].name}"><p>${characterObj[0].name}</p><p id="enemy-hp">${characterObj[0].HP}</p></div>`);
+                    $("#enemy").html(`<div class="col-sm-3 my-2" id="enemy-character" data-name="${characterObj[0].name}" style="background-image: linear-gradient(to right, rgba(0,0,0,.5), rgba(0,0,0,.5)), url('${characterObj[0].img}')"><p>${characterObj[0].name}</p><p id="enemy-hp">${characterObj[0].HP}</p></div>`);
                     $(this).remove();
                     gameObj.enemy = Object.assign({}, characterObj[0]);
                 }
