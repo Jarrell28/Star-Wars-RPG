@@ -7,7 +7,7 @@ body {
     color: #fff;
 }
 
-#attack, #play-again {
+#attack, #play-again, #champion-h2, #enemy-h2, #opponents-h2 {
     display: none;
 }
 
